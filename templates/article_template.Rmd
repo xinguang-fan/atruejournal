@@ -1,0 +1,224 @@
+---
+title: "Article Title"
+author: 
+  - name: "Author Name"
+    affiliation: "Institution"
+    email: "author@email.com"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    keep_md: true
+    toc: true
+    toc_float: true
+    number_sections: true
+    theme: flatly
+    highlight: tango
+    fig_caption: true
+  pdf_document:
+    toc: true
+    number_sections: true
+bibliography: references.bib
+csl: mla.csl
+jekyll_front_matter:
+  layout: page
+  category: "section1"
+  type: "issue01"
+  issue: "01"
+  year: "2024"
+  DOI: "xxx.xxx"
+  title: "Article Title"
+  bio: ["author1"]
+  description: "Short description for metadata and social media"
+  media:
+    - path: "path/foldername/"
+      default: "image.jpg"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = FALSE,
+  warning = FALSE,
+  message = FALSE,
+  fig.width = 8,
+  fig.height = 6,
+  fig.align = "center",
+  dpi = 300
+)
+
+# Load required libraries
+library(ggplot2)
+library(dplyr)
+library(knitr)
+library(plotly)
+library(DT)
+```
+
+# Abstract
+
+Write your abstract here. This template demonstrates how to use R for data analysis within an academic journal article that will be published using Jekyll.
+
+**Keywords:** R, data analysis, academic publishing, Jekyll, digital humanities
+
+# Introduction
+
+This R Markdown template allows authors to create data-driven academic articles that can be seamlessly integrated into the Jekyll journal system. The template supports:
+
+- Data analysis and visualization using R
+- Automatic citation formatting
+- Interactive plots and tables
+- Reproducible research practices
+
+# Data Analysis
+
+## Loading and Exploring Data
+
+```{r data-loading}
+# Generate sample dataset for demonstration
+set.seed(123)
+sample_data <- data.frame(
+  year = rep(2018:2023, each = 50),
+  category = sample(c("Digital Humanities", "Media Studies", "Cultural Studies"), 300, replace = TRUE),
+  value = rnorm(300, mean = 50, sd = 15),
+  impact_factor = runif(300, min = 1, max = 5)
+)
+
+# Display basic statistics
+kable(summary(sample_data), caption = "Summary Statistics of Sample Data")
+```
+
+## Visualization
+
+### Static Plots
+
+```{r static-plot}
+# Create a static visualization
+trend_plot <- ggplot(sample_data, aes(x = year, y = value, color = category)) +
+  geom_smooth(method = "loess", se = FALSE) +
+  geom_point(alpha = 0.6) +
+  labs(
+    title = "Trends in Academic Research Areas",
+    x = "Year",
+    y = "Research Output Value",
+    color = "Category"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 14, face = "bold"),
+    legend.position = "bottom"
+  )
+
+print(trend_plot)
+```
+
+### Interactive Plots
+
+```{r interactive-plot}
+# Create an interactive visualization
+interactive_plot <- plot_ly(
+  data = sample_data,
+  x = ~year,
+  y = ~value,
+  color = ~category,
+  type = "scatter",
+  mode = "markers",
+  marker = list(size = 8, opacity = 0.7),
+  hovertemplate = paste(
+    "<b>%{fullData.category}</b><br>",
+    "Year: %{x}<br>",
+    "Value: %{y:.2f}<br>",
+    "<extra></extra>"
+  )
+) %>%
+  layout(
+    title = "Interactive Trends in Academic Research",
+    xaxis = list(title = "Year"),
+    yaxis = list(title = "Research Output Value"),
+    hovermode = "closest"
+  )
+
+interactive_plot
+```
+
+## Data Tables
+
+```{r data-table}
+# Create an interactive data table
+summary_table <- sample_data %>%
+  group_by(year, category) %>%
+  summarise(
+    avg_value = mean(value),
+    avg_impact = mean(impact_factor),
+    n_observations = n(),
+    .groups = "drop"
+  )
+
+datatable(
+  summary_table,
+  caption = "Summary by Year and Category",
+  options = list(
+    pageLength = 10,
+    scrollX = TRUE,
+    dom = 'Bfrtip',
+    buttons = c('copy', 'csv', 'excel')
+  ),
+  rownames = FALSE
+) %>%
+  formatRound(columns = c("avg_value", "avg_impact"), digits = 2)
+```
+
+# Statistical Analysis
+
+```{r statistical-analysis}
+# Perform statistical analysis
+model <- lm(value ~ year + category + impact_factor, data = sample_data)
+model_summary <- summary(model)
+
+# Display model results
+kable(
+  broom::tidy(model),
+  caption = "Linear Regression Results",
+  digits = 3
+)
+```
+
+The regression analysis reveals that `r paste(names(model$coefficients)[which(summary(model)$coefficients[,4] < 0.05)], collapse = ", ")` are significant predictors of the research output value (p < 0.05).
+
+# Discussion
+
+The results demonstrate the effectiveness of using R for academic data analysis within the journal publication workflow. Key findings include:
+
+1. **Reproducibility**: All analyses can be reproduced by running the R code
+2. **Integration**: Seamless integration with Jekyll publishing system
+3. **Interactivity**: Support for interactive visualizations and tables
+4. **Professional Output**: High-quality figures and tables suitable for publication
+
+# Conclusion
+
+This template provides a robust framework for data-driven academic publishing that combines the analytical power of R with the flexibility of Jekyll for web publication.
+
+# References
+
+<!-- References will be automatically generated from bibliography file -->
+
+---
+
+## Jekyll Integration Notes
+
+To integrate this R Markdown file with Jekyll:
+
+1. **Render the document**: `rmarkdown::render("article_template.Rmd")`
+2. **Copy the generated markdown**: Move the `.md` file to the appropriate Jekyll collection folder
+3. **Add Jekyll front matter**: The YAML header includes Jekyll-specific metadata
+4. **Include media files**: Copy any generated plots to the media server location
+5. **Update collections**: Ensure the collection is properly configured in `_config.yml`
+
+## Required R Packages
+
+Install the following packages before rendering:
+
+```r
+install.packages(c(
+  "rmarkdown", "knitr", "ggplot2", "dplyr", 
+  "plotly", "DT", "broom"
+))
+```
